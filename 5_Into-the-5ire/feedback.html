@@ -9,8 +9,6 @@
   <script src="foundation/js/foundation/foundation.topbar.js"></script>
   <script src="foundation/js/foundation/foundation.reveal.js"></script>
   <script src="js/feedback.js"></script>
-  <script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script>
-  <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'></script>
 </head>
 <body>
   <div class="sticky">
@@ -51,18 +49,36 @@
   </div>
   <div class="row">
     <div class="small-12 columns" id="feedback-list">
-
+      <script>
+      var myDataRef = new Firebase('https://shining-torch-9158.firebaseio.com/');
+      $('#messageInput').keypress(function (e) {
+        if (e.keyCode == 13) {
+          var name = $('#nameInput').val();
+          var text = $('#messageInput').val();
+          myDataRef.push({name: name, text: text});
+          $('#messageInput').val('');
+        }
+      });
+      myDataRef.on('child_added', function(snapshot) {
+        var message = snapshot.val();
+        displayChatMessage(message.name, message.text);
+      });
+      function displayChatMessage(name, text) {
+        $('<div/>').text(text).prepend($('<em/>').text(name+': ')).appendTo($('#messagesDiv'));
+        $('#messagesDiv')[0].scrollTop = $('#messagesDiv')[0].scrollHeight;
+      };
+    </script>
     </div>
   </div>
   <div id="addModal" class="reveal-modal" data-reveal role="dialog">
     <h2>Add Feedback</h2>
     <p>
+      We'd love to hear from you!
+    </p>
+    <form id="add-form">
       <div id='messagesDiv'></div>
       <input type='text' id='nameInput' placeholder='Name'>
       <input type='text' id='messageInput' placeholder='Message'>
-    </p>
-    <form id="add-form">
-      <!--ADD SOME FORM ELEMENTS  -->
       <input type="submit" class="button"/>
     </form>
   </div>
